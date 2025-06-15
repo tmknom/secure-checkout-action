@@ -1,6 +1,6 @@
 # secure-checkout-action
 
-A wrapper for [actions/checkout][checkout].
+Secure and version-stable wrapper for [actions/checkout][checkout].
 
 ## Description
 
@@ -8,6 +8,12 @@ This action is a wrapper for [actions/checkout][checkout].
 By using it, you can fully avoid the need for major version updates of [actions/checkout][checkout].
 It allows you to checkout a Git repository at a specific version, similar to [actions/checkout][checkout].
 The repository is checked out under `$GITHUB_WORKSPACE`, enabling your workflow to access it.
+
+> [!NOTE]
+>
+> This action sets `persist-credentials: false` by default to improve security.
+> This means the GitHub token will not be saved to `.git/config`, reducing the risk of accidental exposure.
+> If your workflow depends on that behavior, set `persist-credentials: true` explicitly.
 
 ## Usage
 
@@ -19,7 +25,8 @@ The repository is checked out under `$GITHUB_WORKSPACE`, enabling your workflow 
 
 ## Inputs and outputs
 
-Inputs and outputs are exactly the same as the original [actions/checkout][checkout], including default values.
+This action supports the same inputs and outputs as the original [actions/checkout][checkout],
+**except** that the default value of `persist-credentials` is set to `false` to improve security.
 
 ## Permissions
 
@@ -55,6 +62,19 @@ Additionally, **this action won’t update the major version when the runtime ch
 By following a different versioning policy from the original [actions/checkout][checkout],
 we eliminate the need for major version upgrades. 
 Since the interface remains unchanged, users won't be affected even if the original action is released a new major version.
+
+### Why is `persist-credentials` set to false by default?
+
+To improve security, this action disables the default behavior of [actions/checkout][checkout],
+which writes the GitHub token to `.git/config`. Disabling this can help prevent accidental reuse
+or leakage of credentials in multi-step workflows or shared environments.
+
+If your workflow relies on the original behavior, you can opt in with:
+
+```yaml
+with:
+  persist-credentials: true
+```
 
 ## Versioning policy
 
