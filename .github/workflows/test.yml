@@ -23,26 +23,19 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: tmknom/checkout-action@v1
-
-      - name: Setup
-        run: |
-          set -x
-          echo "Setup"
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Exercise
         id: exercise
         uses: ./
+        with:
+          ref: feb0b063fb6f4731a5a6db8a5d94e7163bf460dc
 
       - name: Verify
         env:
-          OUTCOME: ${{ steps.exercise.outcome }}
+          REF: ${{ steps.exercise.outputs.ref }}
+          COMMIT: ${{ steps.exercise.outputs.commit }}
         run: |
           set -x
-          test "${OUTCOME}" = "success"
-
-      - name: Teardown
-        if: ${{ always() }}
-        run: |
-          set -x
-          echo "Teardown"
+          test "${REF}" = ""
+          test "${COMMIT}" = "feb0b063fb6f4731a5a6db8a5d94e7163bf460dc"
