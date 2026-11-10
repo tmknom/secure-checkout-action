@@ -8,10 +8,25 @@ concurrency:
 
 permissions: {}
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  call:
-    uses: tmknom/label-workflows/.github/workflows/composite-action.yml@v0
+  label:
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
     permissions:
       contents: read
       pull-requests: write
       issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Cross Labeler
+        uses: tmknom/cross-labeler-action@b9c9afe4fe80daf0b8e3efce0fe86745ad8565da # v0.4.0
+        with:
+          configuration-url: https://raw.githubusercontent.com/tmknom/configurations/128cc66301fe96e449a1e284bb78d5e2ecfb96f2/labeler/composite-action.yml # v0.6.0
