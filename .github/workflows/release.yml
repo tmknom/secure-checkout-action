@@ -15,10 +15,43 @@ concurrency: ${{ github.workflow }}
 
 permissions: {}
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  call:
-    uses: tmknom/release-workflows/.github/workflows/github-releases.yml@v0
-    with:
-      bump-level: ${{ inputs.bump-level }}
+  release:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.actor_id == github.repository_owner_id &&
+      github.triggering_actor == github.repository_owner
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
     permissions:
       contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 100
+          persist-credentials: true
+
+      - name: Bump Version
+        id: bump
+        uses: tmknom/bump-version-action@87bed7f224292cab5b46a4cae9897bbf64153f00 # v0.2.1
+        with:
+          bump-level: ${{ inputs.bump-level }}
+
+      - name: Push Version Tag
+        uses: tmknom/push-version-tag-action@a9d1b46f9c29d3db510771452257b228bfd8a33f # v0.1.1
+        with:
+          version: ${{ steps.bump.outputs.version }}
+          major: true
+
+      - name: Release
+        env:
+          VERSION: ${{ steps.bump.outputs.version }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -x
+          gh release create "${VERSION}" --title "${VERSION}" --generate-notes
