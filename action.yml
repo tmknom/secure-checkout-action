@@ -98,6 +98,15 @@ inputs:
   github-server-url:
     description: The base URL for the GitHub instance that you are trying to clone from, will use environment defaults to fetch from the same instance that the workflow is running from unless specified. Example URLs are https://github.com or https://my-ghes-server.example.com
     required: false
+  allow-unsafe-pr-checkout:
+    description: >
+      Required to check out fork pull request code from a workflow triggered by
+      `pull_request_target` or `workflow_run`. These workflows run with the
+      base repository's GITHUB_TOKEN, secrets, default-branch cache scope, and
+      runner access; fetching and executing a fork's code in that trusted
+      context commonly leads to "pwn request" vulnerabilities. Set to `true`
+      only after reviewing the risks at https://gh.io/securely-using-pull_request_target.
+    default: false
 outputs:
   ref:
     value: ${{ steps.checkout.outputs.ref }}
@@ -112,7 +121,7 @@ runs:
   steps:
     - name: Checkout
       id: checkout
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.ref }}
@@ -134,3 +143,4 @@ runs:
         submodules: ${{ inputs.submodules }}
         set-safe-directory: ${{ inputs.set-safe-directory }}
         github-server-url: ${{ inputs.github-server-url }}
+        allow-unsafe-pr-checkout: ${{ inputs.allow-unsafe-pr-checkout }}
